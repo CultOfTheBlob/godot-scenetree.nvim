@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://buvoxkpjj2c3b"]
+
+[node name="Jimmy" type="Node2D" unique_id=380058666]
+
+[node name="Billy" type="AudioListener2D" parent="." unique_id=643835791]
+
+[node name="Tommy" type="Camera2D" parent="Billy" unique_id=1511542982]
