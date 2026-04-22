@@ -1,5 +1,7 @@
 local M = {}
 
+local icons = require("godot-scenetree.icons")
+
 local function build_tree(nodes)
 	local root = nil
 	local by_name = {}
@@ -30,7 +32,7 @@ local function draw_tree(node, lines, nodes, depth, prefix, is_last)
 	is_last = is_last == nil and true or is_last
 
 	local connector = depth == 0 and "" or (is_last and "└─ " or "├─ ")
-	table.insert(lines, prefix .. connector .. node.type .. " " .. node.name)
+	table.insert(lines, prefix .. connector .. icons.get_icon(node.type) .. " " .. node.name)
 	table.insert(nodes, node)
 
 	local child_prefix = prefix .. (depth == 0 and "" or (is_last and "   " or "│  "))
