@@ -27,6 +27,7 @@ local function open_scene(file)
 
 		local win = vim.api.nvim_open_win(buf, true, {
 			split = "right",
+			width = config.width,
 		})
 		vim.api.nvim_set_current_win(win)
 
