@@ -19,20 +19,32 @@ local last_file = nil
 
 local function open_scene(file)
 	vim.schedule(function()
+		local ns = vim.api.nvim_create_namespace("scenetree_connect")
+
 		local current_buf = vim.api.nvim_get_current_buf()
 		local buf_type = vim.bo[current_buf].filetype
 
-		local lines, nodes = tree.render(parse.parse_scene(file))
+		local lines, nodes, highlights = tree.render(parse.parse_scene(file))
 
 		local buf = vim.api.nvim_create_buf(false, true)
 		vim.api.nvim_buf_set_lines(buf, 0, -1, true, lines)
 		vim.bo[buf].modifiable = false
+
+		for _, h in ipairs(highlights) do
+			local line_content = lines[h.line + 1]
+			local line_len = #line_content
+			vim.api.nvim_buf_set_extmark(buf, ns, h.line, h.col_start, {
+				end_col = math.min(h.col_end, line_len),
+				hl_group = h.group,
+			})
+		end
 
 		local win = vim.api.nvim_open_win(buf, true, {
 			split = config.split,
 			width = config.width,
 		})
 		vim.api.nvim_set_current_win(win)
+		vim.wo[win].cursorline = true
 
 		vim.keymap.set("n", config.keymaps.export_node, function()
 			local pos = vim.api.nvim_win_get_cursor(0)[1]
@@ -90,9 +102,10 @@ local function open_scene(file)
 
 		local connecting = false
 		local from_node = nil
-		local ns = vim.api.nvim_create_namespace("scenetree_connect")
 
 		vim.keymap.set("n", config.keymaps.attach_signal, function()
+			vim.wo[win].winbar = "%#DiagnosticWarn# Connecting...%*"
+
 			local pos = vim.api.nvim_win_get_cursor(0)[1]
 			local selected = nodes[pos]
 
@@ -120,6 +133,7 @@ local function open_scene(file)
 				local to_node = selected
 				local node_signals = signals.get_signals(from_node.type)
 
+				vim.wo[win].winbar = ""
 				pickers[config.picker](signals.to_string(node_signals, buf_type), function(signal)
 					vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
 					vim.api.nvim_set_current_buf(current_buf)
