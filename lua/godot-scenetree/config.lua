@@ -7,6 +7,7 @@ M.config = {
 	keymaps = {
 		open_picker = "p",
 		export_node = "x",
+		attach_signal = "s",
 	},
 }
 

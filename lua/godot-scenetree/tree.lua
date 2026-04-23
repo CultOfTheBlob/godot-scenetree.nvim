@@ -7,7 +7,7 @@ local function build_tree(nodes)
 	local by_name = {}
 
 	for _, node in ipairs(nodes) do
-		local tree_node = { name = node.name, type = node.type, children = {} }
+		local tree_node = { name = node.name, type = node.type, children = {}, parent = nil }
 		by_name[node.name] = tree_node
 		if node.parent == "" then
 			root = tree_node
@@ -16,8 +16,10 @@ local function build_tree(nodes)
 
 	for _, node in ipairs(nodes) do
 		if node.parent == "." and root ~= nil then
+			by_name[node.name].parent = root
 			table.insert(by_name[root.name].children, by_name[node.name])
 		elseif node.parent ~= "" then
+			by_name[node.name].parent = by_name[node.parent]
 			table.insert(by_name[node.parent].children, by_name[node.name])
 		end
 	end
