@@ -7,6 +7,8 @@ M.config = {
 	keymaps = {
 		open_picker = "p",
 		export_node = "x",
+		get_node_path = "c",
+		get_onready_node = "o",
 		attach_signal = "s",
 	},
 }

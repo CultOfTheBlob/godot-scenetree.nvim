@@ -42,6 +42,52 @@ local function open_scene(file)
 			vim.fn.setreg(vim.v.register, export(selected, buf_type))
 		end, { buffer = buf })
 
+		vim.keymap.set("n", config.keymaps.get_node_path, function()
+			local pos = vim.api.nvim_win_get_cursor(0)[1]
+			local selected = nodes[pos]
+			vim.api.nvim_set_current_buf(current_buf)
+			vim.api.nvim_win_close(win, false)
+
+			if buf_type == "cs" then
+				vim.fn.setreg(
+					vim.v.register,
+					"GetNode<" .. selected.type .. '>("' .. utils.get_full_path(selected) .. '")'
+				)
+			else
+				vim.fn.setreg(vim.v.register, "$" .. utils.get_full_path(selected))
+			end
+		end, { buffer = buf })
+
+		vim.keymap.set("n", config.keymaps.get_onready_node, function()
+			local pos = vim.api.nvim_win_get_cursor(0)[1]
+			local selected = nodes[pos]
+			vim.api.nvim_set_current_buf(current_buf)
+			vim.api.nvim_win_close(win, false)
+
+			if buf_type == "cs" then
+				vim.fn.setreg(
+					vim.v.register,
+					utils.camel_case(selected.name)
+						.. " = GetNode<"
+						.. selected.type
+						.. '>("'
+						.. utils.get_full_path(selected)
+						.. '")'
+				)
+			else
+				vim.fn.setreg(
+					vim.v.register,
+					"@onready var "
+						.. utils.snake_case(selected.name)
+						.. ": "
+						.. selected.type
+						.. " = "
+						.. "$"
+						.. utils.get_full_path(selected)
+				)
+			end
+		end, { buffer = buf })
+
 		local connecting = false
 		local from_node = nil
 		local ns = vim.api.nvim_create_namespace("scenetree_connect")
