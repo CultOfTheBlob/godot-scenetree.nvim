@@ -12,6 +12,8 @@ local export = function(node, buf_type)
 end
 
 function M.setup(opts)
+	signals.preload()
+
 	config = vim.tbl_extend("force", config, opts or {})
 end
 
@@ -102,7 +104,6 @@ local function open_scene(file)
 
 		local connecting = false
 		local from_node = nil
-
 		vim.keymap.set("n", config.keymaps.attach_signal, function()
 			vim.wo[win].winbar = "%#DiagnosticWarn# Connecting...%*"
 

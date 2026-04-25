@@ -2659,16 +2659,23 @@ local signals = {
 	},
 }
 
+local signal_lookup = {}
+function M.preload()
+    for node_type in pairs(inherits) do
+        local result = {}
+        local current = node_type
+        while current do
+            for _, sig in ipairs(signals[current] or {}) do
+                table.insert(result, { signal = sig, from = current })
+            end
+            current = inherits[current]
+        end
+        signal_lookup[node_type] = result
+    end
+end
+
 function M.get_signals(node_type)
-	local result = {}
-	local current = node_type
-	while current do
-		for _, sig in ipairs(signals[current] or {}) do
-			table.insert(result, { signal = sig, from = current })
-		end
-		current = inherits[current]
-	end
-	return result
+    return signal_lookup[node_type] or {}
 end
 
 function M.to_string(node_signals, buf_type)
