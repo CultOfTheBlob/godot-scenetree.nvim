@@ -2734,7 +2734,7 @@ function M.add_to_scene(scene_path, signal, node, destination, buf_type)
 		method = "On" .. utils.pascal_case(node.name) .. utils.pascal_case(signal_name)
 		connection = string.format(
 			'[connection signal="%s" from="%s" to="%s" method="%s"]',
-			signal_name,
+			utils.snake_case(signal_name),
 			utils.get_full_path(node),
       destination,
 			method
