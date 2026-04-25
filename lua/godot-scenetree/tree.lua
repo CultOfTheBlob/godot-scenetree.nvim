@@ -4,26 +4,50 @@ local icons = require("godot-scenetree.icons")
 
 local function build_tree(nodes)
 	local root = nil
-	local by_name = {}
+	local by_path = {}
 
 	for _, node in ipairs(nodes) do
-		local tree_node =
-			{ name = node.name, type = node.type, children = {}, parent = nil, has_script = node.has_script }
-		by_name[node.name] = tree_node
+		local tree_node = {
+			name = node.name,
+			type = node.type,
+			children = {},
+			parent = nil,
+			has_script = node.has_script,
+		}
+
+		local path
 		if node.parent == "" then
+			path = node.name
 			root = tree_node
+		elseif node.parent == "." then
+			path = node.name
+		else
+			path = node.parent .. "/" .. node.name
 		end
+
+		tree_node.path = path
+		by_path[path] = tree_node
 	end
 
 	for _, node in ipairs(nodes) do
 		if node.parent == "." and root ~= nil then
-			by_name[node.name].parent = root
-			table.insert(by_name[root.name].children, by_name[node.name])
+			local child = by_path[node.name]
+			child.parent = root
+			table.insert(root.children, child)
 		elseif node.parent ~= "" then
-			by_name[node.name].parent = by_name[node.parent]
-			table.insert(by_name[node.parent].children, by_name[node.name])
+			local child_path = node.parent .. "/" .. node.name
+			local parent_path = node.parent
+
+			local child = by_path[child_path]
+			local parent = by_path[parent_path]
+
+			if child and parent then
+				child.parent = parent
+				table.insert(parent.children, child)
+			end
 		end
 	end
+
 	return root
 end
 
