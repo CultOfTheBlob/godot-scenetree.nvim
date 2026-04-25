@@ -2719,7 +2719,7 @@ function M.to_code(node_name, signal, buf_type)
 		return "public " .. "void " .. "On" .. node_name .. signal_string .. "\n{}"
 	end
 
-	return "func " .. "_on_" .. utils.snake_case(node_name) .. "_" .. signal_string .. " -> void:" .. "\n  pass"
+	return "func " .. "_on_" .. utils.snake_case(node_name) .. "_" .. signal_string .. " -> void:" .. "\n\tpass"
 end
 
 function M.add_to_scene(scene_path, signal, node, destination, buf_type)
