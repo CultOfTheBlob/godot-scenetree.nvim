@@ -32,6 +32,10 @@ local function open_scene(file)
 		vim.api.nvim_buf_set_lines(buf, 0, -1, true, lines)
 		vim.bo[buf].modifiable = false
 
+		local buf_name =
+			file:reverse():sub(file:reverse():find(".", 1, true) + 1, file:reverse():find("/") - 1):reverse()
+		vim.api.nvim_buf_set_name(buf, buf_name)
+
 		for _, h in ipairs(highlights) do
 			local line_content = lines[h.line + 1]
 			local line_len = #line_content
