@@ -2716,7 +2716,7 @@ function M.to_code(node_name, signal, buf_type)
 	local signal_string = string.sub(signal, string.find(signal, ":") + 2)
 
 	if buf_type == "cs" then
-		return "public " .. "void " .. "On" .. node_name .. signal_string .. "\n{}"
+		return "public " .. "void " .. "On" .. node_name .. signal_string .. "\n{\n}"
 	end
 
 	return "func " .. "_on_" .. utils.snake_case(node_name) .. "_" .. signal_string .. " -> void:" .. "\n\tpass"
