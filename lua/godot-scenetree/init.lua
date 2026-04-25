@@ -32,8 +32,16 @@ local function open_scene(file)
 		vim.api.nvim_buf_set_lines(buf, 0, -1, true, lines)
 		vim.bo[buf].modifiable = false
 
-		local buf_name =
-			file:reverse():sub(file:reverse():find(".", 1, true) + 1, file:reverse():find("/") - 1):reverse()
+		local reversed = string.reverse(file)
+		local dot_pos = string.find(reversed, ".", 1, true)
+		local slash_pos = string.find(reversed, "/")
+		local buf_name = string.sub(reversed, dot_pos + 1, (slash_pos or #file + 1) - 1):reverse()
+
+		local existing_buf = vim.fn.bufnr(buf_name)
+		if existing_buf ~= -1 then
+			vim.api.nvim_buf_delete(existing_buf, { force = true })
+		end
+
 		vim.api.nvim_buf_set_name(buf, buf_name)
 
 		for _, h in ipairs(highlights) do
