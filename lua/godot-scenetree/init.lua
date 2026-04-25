@@ -59,6 +59,8 @@ local function open_scene(file)
 		})
 		vim.api.nvim_set_current_win(win)
 		vim.wo[win].cursorline = true
+		vim.wo[win].number = false
+		vim.wo[win].relativenumber = false
 
 		vim.keymap.set("n", config.mappings.export_node, function()
 			local pos = vim.api.nvim_win_get_cursor(0)[1]
