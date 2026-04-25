@@ -48,7 +48,7 @@ local function open_scene(file)
 		vim.api.nvim_set_current_win(win)
 		vim.wo[win].cursorline = true
 
-		vim.keymap.set("n", config.keymaps.export_node, function()
+		vim.keymap.set("n", config.mappings.export_node, function()
 			local pos = vim.api.nvim_win_get_cursor(0)[1]
 			local selected = nodes[pos]
 			vim.api.nvim_set_current_buf(current_buf)
@@ -56,7 +56,7 @@ local function open_scene(file)
 			vim.fn.setreg(vim.v.register, export(selected, buf_type))
 		end, { buffer = buf })
 
-		vim.keymap.set("n", config.keymaps.get_node_path, function()
+		vim.keymap.set("n", config.mappings.get_node_path, function()
 			local pos = vim.api.nvim_win_get_cursor(0)[1]
 			local selected = nodes[pos]
 			vim.api.nvim_set_current_buf(current_buf)
@@ -72,7 +72,7 @@ local function open_scene(file)
 			end
 		end, { buffer = buf })
 
-		vim.keymap.set("n", config.keymaps.get_onready_node, function()
+		vim.keymap.set("n", config.mappings.get_onready_node, function()
 			local pos = vim.api.nvim_win_get_cursor(0)[1]
 			local selected = nodes[pos]
 			vim.api.nvim_set_current_buf(current_buf)
@@ -104,7 +104,7 @@ local function open_scene(file)
 
 		local connecting = false
 		local from_node = nil
-		vim.keymap.set("n", config.keymaps.attach_signal, function()
+		vim.keymap.set("n", config.mappings.attach_signal, function()
 			vim.wo[win].winbar = "%#DiagnosticWarn# Connecting...%*"
 
 			local pos = vim.api.nvim_win_get_cursor(0)[1]
@@ -145,7 +145,7 @@ local function open_scene(file)
 			end
 		end, { buffer = buf })
 
-		vim.keymap.set("n", config.keymaps.open_picker, function()
+		vim.keymap.set("n", config.mappings.open_picker, function()
 			vim.api.nvim_win_close(win, false)
 			M.pick()
 		end, { buffer = buf })

@@ -4,12 +4,12 @@ M.config = {
 	picker = "mini.pick",
 	width = 50,
 	split = "right",
-	keymaps = {
+	mappings = {
 		open_picker = "p",
-		export_node = "x",
-		get_node_path = "c",
-		get_onready_node = "o",
-		attach_signal = "s",
+		export_node = "<C-x>",
+		get_node_path = "<C-c>",
+		get_onready_node = "<C-o>",
+		attach_signal = "<C-s>",
 	},
 }
 
