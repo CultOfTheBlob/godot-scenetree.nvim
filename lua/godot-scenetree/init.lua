@@ -33,9 +33,8 @@ local function open_scene(file)
 		vim.bo[buf].modifiable = false
 
 		local reversed = string.reverse(file)
-		local dot_pos = string.find(reversed, ".", 1, true)
 		local slash_pos = string.find(reversed, "/")
-		local buf_name = string.sub(reversed, dot_pos + 1, (slash_pos or #file + 1) - 1):reverse()
+		local buf_name = string.sub(reversed, 0, (slash_pos or #file + 1) - 1):reverse()
 
 		local existing_buf = vim.fn.bufnr(buf_name)
 		if existing_buf ~= -1 then
