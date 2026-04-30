@@ -25,10 +25,10 @@ A neovim plugin for interacting with godot scenes
 Add this flake as an input in your flake.nix
 
 ```nix
-    godot-scenetree = {
-      url = "github:CultOfTheBlob/godot-scenetree.nvim";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+godot-scenetree = {
+    url = "github:CultOfTheBlob/godot-scenetree.nvim";
+    inputs.nixpkgs.follows = "nixpkgs";
+};
 ```
 
 Then add this inside programs.nvf (make sure you have [Nvf](https://nvf.notashelf.dev/) installed)
@@ -43,7 +43,13 @@ settings.vim.lazy.plugins."godot-scenetree" = {
         # this is where your config will go, see Configuration
     };
 
-    event = ["VimEnter"];
+    keys = [
+        {
+            key = "<leader>S"; # or whichever keybind you prefer
+            mode = "n";
+            action = ":Scenetree<cr>";
+        }
+    ];
 };
 ```
 
