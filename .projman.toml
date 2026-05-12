@@ -1,4 +1,4 @@
 name = "godot-scenetree"
-template_name = "neovimPlugin"
-repo = "https://github.com/CultOfTheBlob/godot-scenetree.nvim.git"
+template_name = "NeovimPlugin"
+repo = "git@github.com:CultOfTheBlob/godot-scenetree.nvim.git"
 license = "MIT"
