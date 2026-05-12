@@ -2659,23 +2659,185 @@ local signals = {
 	},
 }
 
-local signal_lookup = {}
-function M.preload()
-    for node_type in pairs(inherits) do
-        local result = {}
-        local current = node_type
-        while current do
-            for _, sig in ipairs(signals[current] or {}) do
-                table.insert(result, { signal = sig, from = current })
+local function parse_gdscript_signals(file_path)
+    local file = io.open(file_path, "r")
+    if not file then
+        return {}
+    end
+
+    local content = file:read("*all")
+    file:close()
+
+    local result = {}
+
+    for signal_line in content:gmatch("\nsignal%s+([^\n]+)") do
+        local signal_name, params_str = signal_line:match("^(%w+)%s*%((.-)%)%s*$")
+
+        if not signal_name then
+            signal_name = signal_line:match("^(%w+)%s*$")
+            if signal_name then
+                table.insert(result, {
+                    name = signal_name,
+                    params = {}
+                })
             end
-            current = inherits[current]
+        else
+            local params = {}
+            if params_str and params_str ~= "" then
+                for param in params_str:gmatch("[^,]+") do
+                    param = param:match("^%s*(.-)%s*$")
+
+                    local param_name, param_type = param:match("^(%w+)%s*:%s*(.+)$")
+                    if param_name then
+                        table.insert(params, {
+                            name = param_name,
+                            type = param_type
+                        })
+                    else
+                        param_name = param:match("^(%w+)$")
+                        if param_name then
+                            table.insert(params, {
+                                name = param_name,
+                                type = "Variant"
+                            })
+                        end
+                    end
+                end
+            end
+
+            table.insert(result, {
+                name = signal_name,
+                params = params
+            })
         end
-        signal_lookup[node_type] = result
+    end
+
+    return result
+end
+
+local function parse_csharp_signals(file_path)
+    local file = io.open(file_path, "r")
+    if not file then
+        return {}
+    end
+
+    local content = file:read("*all")
+    file:close()
+
+    local result = {}
+
+    for signal_block in content:gmatch("%[Signal%]%s*\n%s*public%s+delegate%s+[^\n]+") do
+        local delegate_name, params_str = signal_block:match("delegate%s+%w+%s+(%w+)EventHandler%s*%((.-)%)%s*;")
+
+        if delegate_name then
+            local signal_name = delegate_name:gsub("(%u)", function(c)
+                return "_" .. c:lower()
+            end):gsub("^_", "")
+
+            local params = {}
+            if params_str and params_str ~= "" then
+                for param in params_str:gmatch("[^,]+") do
+                    param = param:match("^%s*(.-)%s*$")
+
+                    local param_type, param_name = param:match("^(.+)%s+(%w+)$")
+                    if param_type and param_name then
+                        table.insert(params, {
+                            name = param_name,
+                            type = param_type
+                        })
+                    end
+                end
+            end
+
+            table.insert(result, {
+                name = signal_name,
+                params = params
+            })
+        end
+    end
+
+    return result
+end
+
+local function load_custom_signals()
+    local godot_dir = vim.fn.getcwd() .. "/.godot"
+    local cache_file = godot_dir .. "/global_script_class_cache.cfg"
+
+    if vim.fn.filereadable(cache_file) == 0 then
+        return
+    end
+
+    local file = io.open(cache_file, "r")
+    if not file then
+        return
+    end
+
+    local content = file:read("*all")
+    file:close()
+
+    local list_content = content:match("list=(%b[])")
+    if not list_content then
+        return
+    end
+
+    for dict in list_content:gmatch("%b{}") do
+        local class_name = dict:match('"class":%s*&?"([^"]+)"')
+        local language = dict:match('"language":%s*&?"([^"]+)"')
+        local path = dict:match('"path":%s*"([^"]+)"')
+
+        if class_name and language and path then
+            local file_path = path:gsub("^res://", vim.fn.getcwd() .. "/")
+
+            if vim.fn.filereadable(file_path) == 1 then
+                local class_signals = {}
+
+                if language == "GDScript" then
+                    class_signals = parse_gdscript_signals(file_path)
+                elseif language == "C#" then
+                    class_signals = parse_csharp_signals(file_path)
+                end
+
+                if #class_signals > 0 then
+                    signals[class_name] = class_signals
+                end
+            end
+        end
     end
 end
 
+local loaded = false
+
+local function ensure_loaded()
+    if loaded then
+        return
+    end
+
+    load_custom_signals()
+    loaded = true
+end
+
+local function collect(node_type, out)
+    out = out or {}
+
+    local current = node_type
+
+    while current do
+        for _, sig in ipairs(signals[current] or {}) do
+            table.insert(out, {
+                signal = sig,
+                from = current,
+            })
+        end
+
+        current = inherits[current]
+    end
+
+    return out
+end
+
 function M.get_signals(node_type)
-    return signal_lookup[node_type] or {}
+    ensure_loaded()
+    return collect(node_type)
 end
 
 function M.to_string(node_signals, buf_type)

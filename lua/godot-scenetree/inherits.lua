@@ -771,4 +771,40 @@ local inherits = {
 	["XRVRS"] = "Object",
 }
 
+local function load_custom_classes(inherits_list)
+	local godot_dir = vim.fn.getcwd() .. "/.godot"
+	local cache_file = godot_dir .. "/global_script_class_cache.cfg"
+
+	if vim.fn.filereadable(cache_file) == 0 then
+		return inherits_list
+	end
+
+	local file = io.open(cache_file, "r")
+	if not file then
+		return inherits_list
+	end
+
+	local content = file:read("*all")
+	file:close()
+
+	local list_content = content:match("list=(%b[])")
+
+	if not list_content then
+		return inherits_list
+	end
+
+	for dict in list_content:gmatch("{.-}") do
+		local class_name = dict:match('"class":%s*&?"([^"]+)"')
+		local base_class = dict:match('"base":%s*&?"([^"]+)"')
+
+		if class_name and base_class then
+			inherits_list[class_name] = base_class
+		end
+	end
+
+	return inherits_list
+end
+
+inherits = load_custom_classes(inherits)
+
 return inherits

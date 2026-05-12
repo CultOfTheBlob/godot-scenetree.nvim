@@ -12,8 +12,6 @@ local export = function(node, buf_type)
 end
 
 function M.setup(opts)
-	signals.preload()
-
 	config = vim.tbl_extend("force", config, opts or {})
 end
 
